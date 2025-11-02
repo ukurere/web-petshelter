@@ -1,0 +1,79 @@
+﻿@{
+    ViewData["Title"] = "Home";
+    ViewData["BodyClass"] = "index-page"; // важливо для теми
+}
+
+<!-- ======= Hero Section ======= -->
+<section id="hero" class="hero section dark-background">
+
+    <!-- фонове зображення (з теми) -->
+    <img src="~/assets/img/hero-bg.jpg" alt="" data-aos="fade-in" class="hero-bg">
+
+    <div class="container">
+        <div class="row gy-4 justify-content-center">
+            <div class="col-lg-8 text-center" data-aos="fade-up" data-aos-delay="100">
+                <h1 class="mb-3">PLAN. LAUNCH. GROW.</h1>
+                <p class="mb-4">We are team of talented designers making websites with Bootstrap</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="#about" class="btn-get-started">Get Started</a>
+                    <a href="https://www.youtube.com/watch?v=LXb3EKWsInQ" class="glightbox btn-watch-video d-flex align-items-center">
+                        <i class="bi bi-play-circle"></i><span class="ms-2">Watch Video</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>
+<!-- End Hero Section -->
+<!-- ======= About Section (коротка демо-секція) ======= -->
+<section id="about" class="about section">
+    <div class="container" data-aos="fade-up">
+        <div class="row gy-4 align-items-center">
+            <div class="col-lg-6">
+                <img src="~/assets/img/about.jpg" class="img-fluid rounded-3" alt="">
+            </div>
+            <div class="col-lg-6">
+                <h3>About PetShelter</h3>
+                <p class="mb-3">
+                    Simple demo content from the theme. Replace with your copy later.
+                </p>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i>Adopt pets from trusted shelters</li>
+                    <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i>See branches on map</li>
+                    <li class="mb-2"><i class="bi bi-check2-circle me-2 text-success"></i>Public pages for each animal</li>
+                </ul>
+                <a class="btn btn-primary mt-2" asp-controller="Animals" asp-action="Index">Browse Animals</a>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End About -->
+<!-- ======= CTA → приклад прив’язки до MVC ======= -->
+<section class="section">
+    <div class="container text-center" data-aos="zoom-in">
+        <h3 class="mb-3">Ready to adopt?</h3>
+        <p class="mb-4">Check out our latest animals and shelters.</p>
+        <a asp-controller="Animals" asp-action="Index" class="btn btn-outline-primary me-2">Animals</a>
+        <a asp-controller="Shelters" asp-action="Index" class="btn btn-outline-secondary">Shelters</a>
+    </div>
+</section>
+
+<section id="stats" class="stats section">
+    <div class="container">
+        <div class="row text-center gy-4">
+            <div class="col-6 col-md-3">
+                <h3>@s.Animals</h3><p>Animals</p>
+            </div>
+            <div class="col-6 col-md-3">
+                <h3>@s.Shelters</h3><p>Shelters</p>
+            </div>
+            <div class="col-6 col-md-3">
+                <h3>@s.Adoptions</h3><p>Adoptions</p>
+            </div>
+            <div class="col-6 col-md-3">
+                <h3>@s.Adopted</h3><p>Unique adopted</p>
+            </div>
+        </div>
+    </div>
+</section>

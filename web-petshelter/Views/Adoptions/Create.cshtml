@@ -1,0 +1,47 @@
+﻿@model web_petshelter.Models.Adoption
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Adoption</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="AnimalId" class="control-label"></label>
+                <select asp-for="AnimalId" class ="form-control" asp-items="ViewBag.AnimalId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="AdopterName" class="control-label"></label>
+                <input asp-for="AdopterName" class="form-control" />
+                <span asp-validation-for="AdopterName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AdopterEmail" class="control-label"></label>
+                <input asp-for="AdopterEmail" class="form-control" />
+                <span asp-validation-for="AdopterEmail" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AdoptedAt" class="control-label"></label>
+                <input asp-for="AdoptedAt" class="form-control" />
+                <span asp-validation-for="AdoptedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

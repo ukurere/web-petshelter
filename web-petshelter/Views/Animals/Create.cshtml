@@ -1,0 +1,54 @@
+﻿@model web_petshelter.Models.Animal
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+<h4>Animal</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Species" class="form-label"></label>
+                <input asp-for="Species" class="form-control" />
+                <span asp-validation-for="Species" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AgeYears" class="form-label"></label>
+                <input asp-for="AgeYears" class="form-control" />
+                <span asp-validation-for="AgeYears" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Photo</label>
+                <input type="file" name="photo" class="form-control" accept="image/*" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ShelterId" class="form-label"></label>
+                <select asp-for="ShelterId" class="form-select" asp-items="ViewBag.ShelterId"></select>
+                <span asp-validation-for="ShelterId" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Create</button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

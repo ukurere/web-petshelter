@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "Shelters Map";
+}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<div id="map" style="height: 480px;" class="rounded-3 mb-3"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    (async () => {
+      const res = await fetch('/api/shelters');
+      const shelters = await res.json();
+
+      const map = L.map('map').setView([50.45, 30.52], 6); // центр UA
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+      shelters.filter(s => s.latitude && s.longitude).forEach(s => {
+        L.marker([s.latitude, s.longitude]).addTo(map).bindPopup(`<b>${s.name}</b><br/>${s.city ?? ''}`);
+      });
+    })();
+</script>

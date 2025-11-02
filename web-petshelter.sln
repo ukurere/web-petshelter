@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35919.96 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "web-petshelter", "web-petshelter\web-petshelter.csproj", "{B21FF209-DACA-4BD4-8754-35261352B188}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B21FF209-DACA-4BD4-8754-35261352B188}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B21FF209-DACA-4BD4-8754-35261352B188}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B21FF209-DACA-4BD4-8754-35261352B188}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B21FF209-DACA-4BD4-8754-35261352B188}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2B7A7FBC-6FC9-4571-8E54-E6CE69B22A1F}
+	EndGlobalSection
+EndGlobal

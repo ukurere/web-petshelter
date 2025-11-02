@@ -1,0 +1,17 @@
+# VS/Build
+.vs/
+bin/
+obj/
+*.user
+*.suo
+
+# Local data
+AppData/*.db*
+AppData/*.db-shm
+AppData/*.db-wal
+
+# Uploaded files
+wwwroot/uploads/
+
+# Logs / misc
+*.log

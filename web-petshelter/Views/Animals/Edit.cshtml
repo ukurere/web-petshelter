@@ -1,0 +1,64 @@
+﻿@model web_petshelter.Models.Animal
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+<h4>Animal</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="PhotoPath" /> @* щоб зберегти, якщо новий файл не обрано *@
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Species" class="form-label"></label>
+                <input asp-for="Species" class="form-control" />
+                <span asp-validation-for="Species" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AgeYears" class="form-label"></label>
+                <input asp-for="AgeYears" class="form-control" />
+                <span asp-validation-for="AgeYears" class="text-danger"></span>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.PhotoPath))
+            {
+                <div class="mb-2">
+                    <p class="mb-1">Current photo:</p>
+                    <img src="@Model.PhotoPath" alt="Photo" style="max-width: 200px;" />
+                </div>
+            }
+
+            <div class="mb-3">
+                <label class="form-label">New photo (optional)</label>
+                <input type="file" name="photo" class="form-control" accept="image/*" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ShelterId" class="form-label"></label>
+                <select asp-for="ShelterId" class="form-select" asp-items="ViewBag.ShelterId"></select>
+                <span asp-validation-for="ShelterId" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

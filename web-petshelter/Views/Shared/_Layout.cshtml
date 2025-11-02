@@ -1,0 +1,117 @@
+﻿@*
+  Layout, що підключає Dewi тему
+*@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PetShelter</title>
+
+    <!-- Favicons -->
+    <link href="~/assets/img/favicon.png" rel="icon" />
+    <link href="~/assets/img/apple-touch-icon.png" rel="apple-touch-icon" />
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&family=Raleway:wght@100;200;300;400;500;600;700;800;900&family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Vendor CSS (шляхи з теми) -->
+    <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+    <link href="~/assets/vendor/aos/aos.css" rel="stylesheet" />
+    <link href="~/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet" />
+    <link href="~/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet" />
+
+    <!-- Main CSS файли теми -->
+    <link href="~/assets/css/main.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
+</head>
+
+@* Дозволяємо сторінці підставляти клас body (наприклад, "index-page") *@
+<body class="@Convert.ToString(ViewData["BodyClass"])">
+
+    <!-- HEADER з теми -->
+    @* Скопійовано з <header>...</header> у index.html *@
+    <header id="header" class="header d-flex align-items-center fixed-top">
+        <div class="container-fluid container-xl position-relative d-flex align-items-center">
+
+            <a asp-controller="Home" asp-action="Landing" class="logo d-flex align-items-center me-auto">
+                <h1 class="sitename">PetShelter</h1>
+            </a>
+
+            <nav id="navmenu" class="navmenu">
+                <ul>
+                    <li><a href="@Url.Action("Landing","Home")#hero" class="active">Home</a></li>
+                    <li><a href="@Url.Action("Landing","Home")#about">About</a></li>
+                    <li><a asp-controller="Animals" asp-action="Index">Animals</a></li>
+                    <li><a asp-controller="Shelters" asp-action="Index">Shelters</a></li>
+                    <li><a asp-controller="Adoptions" asp-action="Index">Adoptions</a></li>
+                    <li><a href="@Url.Action("Landing","Home")#contact">Contact</a></li>
+                    <li><a asp-controller="Shelters" asp-action="Map">Map</a></li>
+                </ul>
+                <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+            </nav>
+
+            <a class="cta-btn" href="@Url.Action("Landing","Home")#about">Get Started</a>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container-fluid px-0">
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- FOOTER з теми -->
+    @* Скопійовано з <footer>...</footer> у index.html *@
+    <footer id="footer" class="footer dark-background">
+        <div class="container footer-top">
+            <!-- вміст як у темі, можна лишити “Designed by …” або змінити -->
+            <div class="row gy-4">
+                <div class="col-lg-4 col-md-6 footer-about">
+                    <a asp-controller="Home" asp-action="Landing" class="logo d-flex align-items-center"><span class="sitename">PetShelter</span></a>
+                    <div class="footer-contact pt-3">
+                        <p>Kyiv, Ukraine</p>
+                        <p class="mt-3"><strong>Phone:</strong> <span>+380 00 000 00 00</span></p>
+                        <p><strong>Email:</strong> <span>info@petshelter.test</span></p>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 footer-links">
+                    <h4>Links</h4>
+                    <ul>
+                        <li><i class="bi bi-chevron-right"></i> <a asp-controller="Home" asp-action="Landing">Home</a></li>
+                        <li><i class="bi bi-chevron-right"></i> <a asp-controller="Animals" asp-action="Index">Animals</a></li>
+                        <li><i class="bi bi-chevron-right"></i> <a asp-controller="Shelters" asp-action="Index">Shelters</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 col-md-12">
+                    <p class="mb-0">© PetShelter</p>
+                </div>
+            </div>
+        </div>
+        <div class="container copyright text-center mt-4">
+            <p>© <strong class="px-1 sitename">PetShelter</strong> All Rights Reserved</p>
+        </div>
+    </footer>
+
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <div id="preloader"></div>
+
+    <!-- Vendor JS -->
+    <script src="~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/vendor/php-email-form/validate.js"></script>
+    <script src="~/assets/vendor/aos/aos.js"></script>
+    <script src="~/assets/vendor/glightbox/js/glightbox.min.js"></script>
+    <script src="~/assets/vendor/purecounter/purecounter_vanilla.js"></script>
+    <script src="~/assets/vendor/swiper/swiper-bundle.min.js"></script>
+    <script src="~/assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
+    <script src="~/assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+
+    <!-- Main JS -->
+    <script src="~/assets/js/main.js"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

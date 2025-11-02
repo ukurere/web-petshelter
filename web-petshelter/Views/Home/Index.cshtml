@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Home";
+    // Dewi тема очікує клас body="index-page"
+    ViewData["BodyClass"] = "index-page";
+}
+
+<!-- Тимчасовий hero-блок (перевірка, що все рендериться) -->
+<section id="hero" class="hero section dark-background d-flex align-items-center justify-content-center" style="min-height:60vh">
+    <div class="text-center" data-aos="fade-up">
+        <h1 class="mb-3">PetShelter</h1>
+        <p class="lead mb-4">Everything is wired correctly 🎉</p>
+        <a class="btn btn-primary btn-lg" asp-controller="Animals" asp-action="Index">View animals</a>
+    </div>
+</section>
+
+<!-- Далі можеш вставити контент із твоєї теми:
+     скопіюй усе, що МІЖ <main class="main"> ... </main> з index.html,
+     і заміни шляхи на ~/assets/... -->
