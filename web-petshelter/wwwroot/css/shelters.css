@@ -1,0 +1,79 @@
+﻿/* Card like “Team” with hover overlay */
+.shelter-card {
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 25px rgba(0,0,0,.08);
+    border-radius: 8px;
+    background: var(--surface-color, #fff);
+}
+
+    .shelter-card .pic img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .shelter-card .shelter-info {
+        background: var(--surface-color, #fff);
+        color: var(--default-color, #444);
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        bottom: -56px;
+        padding: 12px 16px;
+        border-radius: 6px;
+        box-shadow: 0 2px 15px rgba(0,0,0,.12);
+        transition: .5s;
+    }
+
+    .shelter-card:hover .shelter-info {
+        bottom: 20px;
+    }
+
+    .shelter-card .shelter-info h4 {
+        margin: 0 0 4px;
+        font-weight: 700;
+        font-size: 18px;
+    }
+
+    .shelter-card .shelter-info span {
+        font-size: 13px;
+        color: #6c757d;
+    }
+
+    .shelter-card .shelter-info .meta {
+        font-size: 13px;
+        margin-top: 6px;
+    }
+
+    .shelter-card .shelter-info .actions {
+        margin-top: 10px;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+/* Details: vertical gallery */
+.gallery-vertical {
+    display: block;
+}
+
+    .gallery-vertical .gallery-item {
+        margin-bottom: 16px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 18px rgba(0,0,0,.08);
+    }
+
+        .gallery-vertical .gallery-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+/* small tweak for sticky info card on large screens */
+@media (min-width: 992px) {
+    .sticky-lg-top.top-3 {
+        top: 1.5rem;
+    }
+}

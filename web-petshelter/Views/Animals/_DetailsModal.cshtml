@@ -1,0 +1,35 @@
+﻿@model web_petshelter.Models.Animal
+<div class="modal-header">
+    <h5 class="modal-title">@Model.Name (@Model.Species)</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <div class="row g-3">
+        <div class="col-md-5">
+            <img class="img-fluid rounded"
+                 src="@(string.IsNullOrWhiteSpace(Model.PhotoPath) ? Url.Content("~/assets/img/services.jpg") : Model.PhotoPath)"
+                 alt="@Model.Name" />
+        </div>
+        <div class="col-md-7">
+            <dl class="row mb-0">
+                <dt class="col-4">Name</dt>
+                <dd class="col-8">@Model.Name</dd>
+                <dt class="col-4">Species</dt>
+                <dd class="col-8">@Model.Species</dd>
+                <dt class="col-4">Breed</dt>
+                <dd class="col-8">@Model.Breed?.Name</dd>
+                <dt class="col-4">Age</dt>
+                <dd class="col-8">@Model.AgeYears years</dd>
+                <dt class="col-4">Gender</dt>
+                <dd class="col-8">@Model.Gender</dd>
+                <dt class="col-4">Adopted</dt>
+                <dt class="col-4">Shelter</dt>
+                <dd class="col-8">@Model.Shelter?.Name</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-primary">Open full page</a>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+</div>

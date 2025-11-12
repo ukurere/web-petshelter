@@ -1,25 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace web_petshelter.Models;
-
-public class Animal
+﻿namespace web_petshelter.Models
 {
-    public int Id { get; set; }
+    public enum Gender { Unknown = 0, Male = 1, Female = 2 }
 
-    [Required, StringLength(120)]
-    public string Name { get; set; } = "";
-
-    [Required, StringLength(50)]
-    public string Species { get; set; } = ""; // Cat/Dog…
-
-    public int AgeYears { get; set; }
-
-    [Display(Name = "Photo")]
-    public string? PhotoPath { get; set; } // /uploads/.. у wwwroot
-
-    [Display(Name = "Shelter")]
-    public int ShelterId { get; set; }
-    public Shelter? Shelter { get; set; }
-
-    public List<Adoption> Adoptions { get; set; } = new();
+    public class Animal
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public string Species { get; set; } = "";
+        public int AgeYears { get; set; }
+        public string? PhotoPath { get; set; }
+        public Gender Gender { get; set; } = Gender.Unknown;
+        public int ShelterId { get; set; }
+        public Shelter Shelter { get; set; } = null!;
+        public int? BreedId { get; set; }
+        public Breed? Breed { get; set; }
+        public ICollection<Adoption> Adoptions { get; set; } = new List<Adoption>();
+    }
 }

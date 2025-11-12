@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using web_petshelter.Data;
 using web_petshelter.Models;
@@ -12,148 +8,145 @@ namespace web_petshelter.Controllers
 {
     public class SheltersController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _db;
+        public SheltersController(AppDbContext db) => _db = db;
 
+        // --- READ ---
+
+        [AllowAnonymous]
+        public async Task<IActionResult> Index(string? q, string? city)
+        {
+            IQueryable<Shelter> query = _db.Shelters.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(q))
+                query = query.Where(s =>
+                    s.Name.Contains(q) ||
+                    (s.Address != null && s.Address.Contains(q)));
+
+            if (!string.IsNullOrWhiteSpace(city))
+                query = query.Where(s => s.City == city);
+
+            var items = await query.OrderBy(s => s.Name).ToListAsync();
+            return View(items);
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> Details(int id)
+        {
+            var shelter = await _db.Shelters
+                .AsNoTracking()
+                .Include(s => s.Animals)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (shelter is null) return NotFound();
+            return View(shelter);
+        }
+
+        // Карта
+        [AllowAnonymous]
+        [HttpGet]
         public IActionResult Map() => View();
 
-        public SheltersController(AppDbContext context)
+        // Дані для карти
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> MapData()
         {
-            _context = context;
+            var items = await _db.Shelters
+                // ↓↓↓ якщо у вас Lat/Lng — змініть рядок нижче відповідно
+                .Where(s => s.Lat != null && s.Lng != null)
+                .Select(s => new ShelterMapDto(
+                    s.Id,
+                    s.Name,
+                    s.Address,
+                    s.Lat!.Value,
+                    s.Lng!.Value))
+                .ToListAsync();
+
+            return Json(items); // ← цього бракувало
         }
 
-        // GET: Shelters
-        public async Task<IActionResult> Index()
+        // --- CREATE ---
+        [Authorize(Roles = "Admin")]
+        public IActionResult Create() => View(new Shelter());
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(
+            [Bind("Name,Address,City,Lat,Lng,Phone,PhotoUrl")]
+            Shelter input)
         {
-            return View(await _context.Shelters.ToListAsync());
-        }
+            if (!ModelState.IsValid) return View(input);
 
-        // GET: Shelters/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var shelter = await _context.Shelters
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (shelter == null)
-            {
-                return NotFound();
-            }
-
-            return View(shelter);
-        }
-
-        // GET: Shelters/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Shelters/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Address,City")] Shelter shelter)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(shelter);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(shelter);
-        }
-
-        // GET: Shelters/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var shelter = await _context.Shelters.FindAsync(id);
-            if (shelter == null)
-            {
-                return NotFound();
-            }
-            return View(shelter);
-        }
-
-        // POST: Shelters/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address,City")] Shelter shelter)
-        {
-            if (id != shelter.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(shelter);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ShelterExists(shelter.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(shelter);
-        }
-
-        // GET: Shelters/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var shelter = await _context.Shelters
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (shelter == null)
-            {
-                return NotFound();
-            }
-
-            return View(shelter);
-        }
-
-        // POST: Shelters/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var shelter = await _context.Shelters.FindAsync(id);
-            if (shelter != null)
-            {
-                _context.Shelters.Remove(shelter);
-            }
-
-            await _context.SaveChangesAsync();
+            _db.Shelters.Add(input);
+            await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ShelterExists(int id)
+        // --- UPDATE ---
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id)
         {
-            return _context.Shelters.Any(e => e.Id == id);
+            var shelter = await _db.Shelters.FindAsync(id);
+            if (shelter is null) return NotFound();
+            return View(shelter);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id,
+            [Bind("Id,Name,Address,City,Lat,Lng,Phone,PhotoUrl")]
+            Shelter input)
+        {
+            if (id != input.Id) return NotFound();
+            if (!ModelState.IsValid) return View(input);
+
+            try
+            {
+                _db.Update(input);
+                await _db.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                var exists = await _db.Shelters.AnyAsync(s => s.Id == id);
+                if (!exists) return NotFound();
+                throw;
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // --- DELETE ---
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var shelter = await _db.Shelters
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == id);
+            if (shelter is null) return NotFound();
+            return View(shelter);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var shelter = await _db.Shelters.FindAsync(id);
+            if (shelter != null)
+            {
+                _db.Shelters.Remove(shelter);
+                await _db.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Index));
         }
     }
+
+    // DTO можна тимчасово покласти тут же або окремим файлом у Features/Shelters
+    public sealed record ShelterMapDto(
+        int Id,
+        string Name,
+        string? Address,
+        double Lat,
+        double Lng
+    );
 }

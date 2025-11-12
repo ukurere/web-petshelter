@@ -1,172 +1,171 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using web_petshelter.Data;
 using web_petshelter.Models;
+using web_petshelter.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace web_petshelter.Controllers
 {
     public class AnimalsController : Controller
     {
-        private readonly AppDbContext _context;
-        private readonly IWebHostEnvironment _env;
+        private readonly AppDbContext _db;
 
-        public AnimalsController(AppDbContext context, IWebHostEnvironment env)
+        public AnimalsController(AppDbContext db) => _db = db;
+
+        // Список з фільтрами + пагінація (GET /Animals)
+        [HttpGet]
+        public async Task<IActionResult> Index([FromQuery] AnimalFilterVm f)
         {
-            _context = context;
-            _env = env;
-        }
-
-        // GET: Animals
-        public async Task<IActionResult> Index()
-        {
-            var appDbContext = _context.Animals.Include(a => a.Shelter);
-            return View(await appDbContext.ToListAsync());
-        }
-
-        // GET: Animals/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var animal = await _context.Animals
+            // базовий запит
+            var q = _db.Animals
+                .AsNoTracking()
+                .Include(a => a.Breed)
                 .Include(a => a.Shelter)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .AsQueryable();
 
-            if (animal == null) return NotFound();
-            return View(animal);
+            // фільтри
+            if (!string.IsNullOrWhiteSpace(f.Species)) q = q.Where(a => a.Species == f.Species);
+            if (f.BreedId.HasValue) q = q.Where(a => a.BreedId == f.BreedId.Value);
+            if (f.Gender.HasValue) q = q.Where(a => a.Gender == f.Gender.Value);
+            if (f.MinAge.HasValue) q = q.Where(a => a.AgeYears >= f.MinAge.Value);
+            if (f.MaxAge.HasValue) q = q.Where(a => a.AgeYears <= f.MaxAge.Value);
+            if (f.ShelterId.HasValue) q = q.Where(a => a.ShelterId == f.ShelterId.Value);
+
+            // !!! adopted -> derived по наявності записів в Adoptions
+            if (f.Adopted.HasValue)
+            {
+                q = f.Adopted.Value
+                    ? q.Where(a => a.Adoptions.Any())
+                    : q.Where(a => !a.Adoptions.Any());
+            }
+
+            if (!string.IsNullOrWhiteSpace(f.Search)) q = q.Where(a => a.Name.Contains(f.Search));
+
+            // пагінація
+            var safePage = Math.Max(1, f.Page);
+            var safePageSize = Math.Clamp(f.PageSize, 1, 100);
+
+            f.Total = await q.CountAsync();
+            f.Items = await q
+                .OrderBy(a => a.Id)
+                .Skip((safePage - 1) * safePageSize)
+                .Take(safePageSize)
+                .ToListAsync();
+
+            // лукапи для селектів
+            f.Breeds = await _db.Breeds.AsNoTracking().OrderBy(b => b.Name).ToListAsync();
+            f.Shelters = await _db.Shelters.AsNoTracking().OrderBy(s => s.Name).ToListAsync();
+
+            return View(f);
         }
 
-        // GET: Animals/Create
-        public IActionResult Create()
+        // Деталі
+        public async Task<IActionResult> Details(int id)
         {
-            ViewData["ShelterId"] = new SelectList(_context.Shelters, "Id", "Name");
+            var animal = await _db.Animals
+                .Include(a => a.Breed)
+                .Include(a => a.Shelter)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            return animal is null ? NotFound() : View(animal);
+        }
+
+        // Create (GET)
+        public async Task<IActionResult> Create()
+        {
+            await LoadLookups();
             return View();
         }
 
-        // POST: Animals/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Species,AgeYears,ShelterId")] Animal animal, IFormFile? photo)
+        // Create (POST)
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Animal animal)
         {
-            // handle file
-            if (photo is not null && photo.Length > 0)
+            if (!ModelState.IsValid)
             {
-                var uploads = Path.Combine(_env.WebRootPath, "uploads");
-                Directory.CreateDirectory(uploads);
-
-                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(photo.FileName)}";
-                var filePath = Path.Combine(uploads, fileName);
-
-                await using var stream = System.IO.File.Create(filePath);
-                await photo.CopyToAsync(stream);
-
-                animal.PhotoPath = $"/uploads/{fileName}";
+                await LoadLookups();
+                return View(animal);
             }
 
-            if (ModelState.IsValid)
-            {
-                _context.Add(animal);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            _db.Add(animal);
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
 
-            ViewData["ShelterId"] = new SelectList(_context.Shelters, "Id", "Name", animal.ShelterId);
+        // Edit (GET)
+        public async Task<IActionResult> Edit(int id)
+        {
+            var animal = await _db.Animals.FindAsync(id);
+            if (animal is null) return NotFound();
+
+            await LoadLookups();
             return View(animal);
         }
 
-        // GET: Animals/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // Edit (POST)
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Animal animal)
         {
-            if (id == null) return NotFound();
-
-            var animal = await _context.Animals.FindAsync(id);
-            if (animal == null) return NotFound();
-
-            ViewData["ShelterId"] = new SelectList(_context.Shelters, "Id", "Name", animal.ShelterId);
-            return View(animal);
-        }
-
-        // POST: Animals/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Species,AgeYears,ShelterId,PhotoPath")] Animal formModel, IFormFile? photo)
-        {
-            if (id != formModel.Id) return NotFound();
-
-            var animal = await _context.Animals.FirstOrDefaultAsync(a => a.Id == id);
-            if (animal == null) return NotFound();
+            if (id != animal.Id) return NotFound();
 
             if (!ModelState.IsValid)
             {
-                ViewData["ShelterId"] = new SelectList(_context.Shelters, "Id", "Name", formModel.ShelterId);
-                return View(formModel);
+                await LoadLookups();
+                return View(animal);
             }
-
-            // update scalar fields
-            animal.Name = formModel.Name;
-            animal.Species = formModel.Species;
-            animal.AgeYears = formModel.AgeYears;
-            animal.ShelterId = formModel.ShelterId;
-
-            // if a new file was uploaded – replace path
-            if (photo is not null && photo.Length > 0)
-            {
-                var uploads = Path.Combine(_env.WebRootPath, "uploads");
-                Directory.CreateDirectory(uploads);
-
-                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(photo.FileName)}";
-                var filePath = Path.Combine(uploads, fileName);
-
-                await using var stream = System.IO.File.Create(filePath);
-                await photo.CopyToAsync(stream);
-
-                animal.PhotoPath = $"/uploads/{fileName}";
-            }
-            // else: keep existing animal.PhotoPath as-is
 
             try
             {
-                await _context.SaveChangesAsync();
+                _db.Update(animal);
+                await _db.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Animals.Any(e => e.Id == id)) return NotFound();
+                if (!await _db.Animals.AnyAsync(a => a.Id == id)) return NotFound();
                 throw;
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Animals/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // Delete (GET)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null) return NotFound();
-
-            var animal = await _context.Animals
+            var animal = await _db.Animals
+                .Include(a => a.Breed)
                 .Include(a => a.Shelter)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (animal == null) return NotFound();
+                .FirstOrDefaultAsync(a => a.Id == id);
 
-            return View(animal);
+            return animal is null ? NotFound() : View(animal);
         }
 
-        // POST: Animals/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        // Delete (POST)
+        [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var animal = await _context.Animals.FindAsync(id);
-            if (animal != null) _context.Animals.Remove(animal);
-
-            await _context.SaveChangesAsync();
+            var animal = await _db.Animals.FindAsync(id);
+            if (animal is not null)
+            {
+                _db.Animals.Remove(animal);
+                await _db.SaveChangesAsync();
+            }
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task LoadLookups()
+        {
+            ViewData["BreedId"] = new SelectList(
+                await _db.Breeds.AsNoTracking().OrderBy(b => b.Name).ToListAsync(), "Id", "Name");
+
+            ViewData["ShelterId"] = new SelectList(
+                await _db.Shelters.AsNoTracking().OrderBy(s => s.Name).ToListAsync(), "Id", "Name");
+
+            ViewData["GenderList"] = new SelectList(
+                Enum.GetValues(typeof(Gender)).Cast<Gender>().Select(g => new { Id = (int)g, Name = g.ToString() }),
+                "Id", "Name");
         }
     }
 }

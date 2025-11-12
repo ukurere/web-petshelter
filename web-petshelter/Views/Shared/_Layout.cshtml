@@ -1,6 +1,7 @@
-﻿@*
-  Layout, що підключає Dewi тему
-*@
+﻿@* Layout, що підключає Dewi тему *@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,31 +10,39 @@
     <title>@ViewData["Title"] - PetShelter</title>
 
     <!-- Favicons -->
-    <link href="~/assets/img/favicon.png" rel="icon" />
-    <link href="~/assets/img/apple-touch-icon.png" rel="apple-touch-icon" />
+    <link href="~/assets/img/favicon.png" rel="icon" asp-append-version="true" />
+    <link href="~/assets/img/apple-touch-icon.png" rel="apple-touch-icon" asp-append-version="true" />
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&family=Raleway:wght@100;200;300;400;500;600;700;800;900&family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Vendor CSS (шляхи з теми) -->
-    <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
-    <link href="~/assets/vendor/aos/aos.css" rel="stylesheet" />
-    <link href="~/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet" />
-    <link href="~/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet" />
+    <!-- Vendor CSS -->
+    <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/assets/vendor/aos/aos.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet" asp-append-version="true" />
 
     <!-- Main CSS файли теми -->
-    <link href="~/assets/css/main.css" rel="stylesheet" />
+    <link href="~/assets/css/main.css" rel="stylesheet" asp-append-version="true" />
     <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
+
+    @RenderSection("Styles", required: false)
 </head>
-
-@* Дозволяємо сторінці підставляти клас body (наприклад, "index-page") *@
 <body class="@Convert.ToString(ViewData["BodyClass"])">
+    @{
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
-    <!-- HEADER з теми -->
-    @* Скопійовано з <header>...</header> у index.html *@
+        string Active(string controller, string? action = null)
+        => (string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
+        && (action is null || string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)))
+        ? "active" : "";
+    }
+
+    <!-- HEADER -->
     <header id="header" class="header d-flex align-items-center fixed-top">
         <div class="container-fluid container-xl position-relative d-flex align-items-center">
 
@@ -43,18 +52,76 @@
 
             <nav id="navmenu" class="navmenu">
                 <ul>
-                    <li><a href="@Url.Action("Landing","Home")#hero" class="active">Home</a></li>
-                    <li><a href="@Url.Action("Landing","Home")#about">About</a></li>
-                    <li><a asp-controller="Animals" asp-action="Index">Animals</a></li>
-                    <li><a asp-controller="Shelters" asp-action="Index">Shelters</a></li>
-                    <li><a asp-controller="Adoptions" asp-action="Index">Adoptions</a></li>
-                    <li><a href="@Url.Action("Landing","Home")#contact">Contact</a></li>
-                    <li><a asp-controller="Shelters" asp-action="Map">Map</a></li>
+                    <li>
+                        <a asp-controller="Home" asp-action="Landing"
+                           class="@(ViewContext.RouteData.Values["controller"]?.ToString()=="Home"
+                        && ViewContext.RouteData.Values["action"]?.ToString()=="Landing" ? "active" : "")">
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="Animals" asp-action="Index"
+                           class="@(ViewContext.RouteData.Values["controller"]?.ToString()=="Animals" ? "active" : "")">
+                            Animals
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="Shelters" asp-action="Index"
+                           class="@(ViewContext.RouteData.Values["controller"]?.ToString()=="Shelters"
+                        && ViewContext.RouteData.Values["action"]?.ToString()=="Index" ? "active" : "")">
+                            Shelters
+                        </a>
+                    </li>
+
+                    <!-- НОВЕ: Statistics -->
+                    <li>
+                        <a asp-controller="Home" asp-action="Statistics"
+                           class="@(ViewContext.RouteData.Values["controller"]?.ToString()=="Home"
+                        && ViewContext.RouteData.Values["action"]?.ToString()=="Statistics" ? "active" : "")">
+                            Statistics
+                        </a>
+                    </li>
+
+                    <li>
+                        <a asp-controller="Shelters" asp-action="Map"
+                           class="@(ViewContext.RouteData.Values["controller"]?.ToString()=="Shelters"
+                        && ViewContext.RouteData.Values["action"]?.ToString()=="Map" ? "active" : "")">
+                            Map
+                        </a>
+                    </li>
+
+                    <li>
+                        <a asp-controller="Adoptions" asp-action="Index"
+                           class="@(ViewContext.RouteData.Values["controller"]?.ToString()=="Adoptions" ? "active" : "")">
+                            Adoptions
+                        </a>
+                    </li>
                 </ul>
                 <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
             </nav>
 
-            <a class="cta-btn" href="@Url.Action("Landing","Home")#about">Get Started</a>
+
+            <div class="d-flex align-items-center gap-2 ms-3">
+                @if (SignInManager?.IsSignedIn(User) == true)
+                {
+                    <span class="text-white-50 d-none d-md-inline">Hello, @User.Identity?.Name</span>
+                    <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="m-0">
+                        <button class="btn btn-outline-light btn-sm" type="submit">Logout</button>
+                    </form>
+                }
+                else
+                {
+                    <a class="btn btn-sm btn-outline-light"
+                       asp-area="Identity"
+                       asp-page="/Account/Login">Sign in</a>
+
+                    <a class="btn btn-sm btn-primary ms-2"
+                       asp-area="Identity"
+                       asp-page="/Account/Register">Register</a>
+                }
+            </div>
+
+
         </div>
     </header>
 
@@ -64,14 +131,14 @@
         </div>
     </main>
 
-    <!-- FOOTER з теми -->
-    @* Скопійовано з <footer>...</footer> у index.html *@
+    <!-- FOOTER -->
     <footer id="footer" class="footer dark-background">
         <div class="container footer-top">
-            <!-- вміст як у темі, можна лишити “Designed by …” або змінити -->
             <div class="row gy-4">
                 <div class="col-lg-4 col-md-6 footer-about">
-                    <a asp-controller="Home" asp-action="Landing" class="logo d-flex align-items-center"><span class="sitename">PetShelter</span></a>
+                    <a asp-controller="Home" asp-action="Landing" class="logo d-flex align-items-center">
+                        <span class="sitename">PetShelter</span>
+                    </a>
                     <div class="footer-contact pt-3">
                         <p>Kyiv, Ukraine</p>
                         <p class="mt-3"><strong>Phone:</strong> <span>+380 00 000 00 00</span></p>
@@ -96,21 +163,23 @@
         </div>
     </footer>
 
-    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+        <i class="bi bi-arrow-up-short"></i>
+    </a>
     <div id="preloader"></div>
 
     <!-- Vendor JS -->
-    <script src="~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="~/assets/vendor/php-email-form/validate.js"></script>
-    <script src="~/assets/vendor/aos/aos.js"></script>
-    <script src="~/assets/vendor/glightbox/js/glightbox.min.js"></script>
-    <script src="~/assets/vendor/purecounter/purecounter_vanilla.js"></script>
-    <script src="~/assets/vendor/swiper/swiper-bundle.min.js"></script>
-    <script src="~/assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
-    <script src="~/assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+    <script src="~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <script src="~/assets/vendor/php-email-form/validate.js" asp-append-version="true"></script>
+    <script src="~/assets/vendor/aos/aos.js" asp-append-version="true"></script>
+    <script src="~/assets/vendor/glightbox/js/glightbox.min.js" asp-append-version="true"></script>
+    <script src="~/assets/vendor/purecounter/purecounter_vanilla.js" asp-append-version="true"></script>
+    <script src="~/assets/vendor/swiper/swiper-bundle.min.js" asp-append-version="true"></script>
+    <script src="~/assets/vendor/imagesloaded/imagesloaded.pkgd.min.js" asp-append-version="true"></script>
+    <script src="~/assets/vendor/isotope-layout/isotope.pkgd.min.js" asp-append-version="true"></script>
 
     <!-- Main JS -->
-    <script src="~/assets/js/main.js"></script>
+    <script src="~/assets/js/main.js" asp-append-version="true"></script>
 
     @RenderSection("Scripts", required: false)
 </body>

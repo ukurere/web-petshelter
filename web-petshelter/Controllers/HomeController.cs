@@ -1,53 +1,61 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using web_petshelter.Models;
 using Microsoft.EntityFrameworkCore;
 using web_petshelter.Data;
+using web_petshelter.Models;
+using web_petshelter.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Mono.TextTemplating;
+using web_petshelter.Features.Statistics; // where we put the service/VM
+using System.Threading.Tasks;
 
-namespace web_petshelter.Controllers
+
+
+namespace web_petshelter.Controllers;
+
+public class HomeController : Controller
 {
-    public class StatsVm { public int Animals; public int Shelters; public int Adoptions; public int Adopted; }
+    private readonly AppDbContext _db;
+    private readonly ILogger<HomeController> _logger;
+    private readonly StatisticsService _stats; 
 
-    public class HomeController : Controller
+    public HomeController(AppDbContext db, ILogger<HomeController> logger, StatisticsService stats)
     {
-        private readonly AppDbContext _db;
-        public HomeController(AppDbContext db) { _db = db; }
-
-        public async Task<IActionResult> Landing()
-        {
-            var vm = new StatsVm
-            {
-                Animals = await _db.Animals.CountAsync(),
-                Shelters = await _db.Shelters.CountAsync(),
-                Adoptions = await _db.Adoptions.CountAsync(),
-                Adopted = await _db.Adoptions.Select(a => a.AnimalId).Distinct().CountAsync()
-            };
-            ViewBag.Stats = vm;
-            return View();
-        }
-
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
+        _db = db;
+        _logger = logger;
+        _stats = stats;
     }
+
+    public async Task<IActionResult> Landing()
+    {
+        var vm = new StatsVm
+        {
+            Animals = await _db.Animals.CountAsync(),
+            Shelters = await _db.Shelters.CountAsync(),
+            Adoptions = await _db.Adoptions.CountAsync(),
+            Adopted = await _db.Adoptions.Select(a => a.AnimalId).Distinct().CountAsync()
+        };
+
+        ViewData["BodyClass"] = "index-page";
+        return View(vm);
+    }
+
+    public IActionResult Index() => View();
+
+    public IActionResult Privacy() => View();
+
+    [HttpGet]
+    public async Task<IActionResult> Statistics(DateTime? from, DateTime? to)
+    {
+        // Normalize: if only "to" provided, make "from" wide; swap if inverted
+        if (from.HasValue && to.HasValue && from > to)
+            (from, to) = (to, from);
+
+        var model = await _stats.GetAsync(from, to);
+        return View(model);
+    }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+        => View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 }

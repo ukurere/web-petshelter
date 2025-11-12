@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Volunteer ToDo (Local)";
+    Layout = "_Layout";
+}
+<h1 class="display-6 mb-3">Volunteer ToDo (Local)</h1>
+
+<div class="input-group mb-3">
+    <input id="taskInput" class="form-control" placeholder="New task...">
+    <button id="addBtn" class="btn btn-primary">Add</button>
+</div>
+
+<ul id="list" class="list-group"></ul>
+
+<script>
+    const KEY = "ps.todos";
+    let items = JSON.parse(localStorage.getItem(KEY) || "[]");
+
+    const list = document.getElementById("list");
+    const input = document.getElementById("taskInput");
+    const addBtn = document.getElementById("addBtn");
+
+    function save(){ localStorage.setItem(KEY, JSON.stringify(items)); }
+    function render(){
+      list.innerHTML = "";
+      items.forEach((t,i) => {
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex align-items-center justify-content-between";
+        li.innerHTML = `
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" ${t.done ? "checked":""} data-i="${i}">
+            <label class="form-check-label ${t.done?"text-decoration-line-through text-muted":""}">
+              ${t.title}
+            </label>
+          </div>
+          <button class="btn btn-sm btn-outline-danger" data-del="${i}">Delete</button>
+        `;
+        list.appendChild(li);
+      });
+    }
+    function add(title){
+      if(!title.trim()) return;
+      items.push({ id: crypto.randomUUID(), title, done:false, ts: Date.now() });
+      save(); render(); input.value="";
+    }
+    list.addEventListener("click", (e)=>{
+      const i = e.target.dataset.i, d = e.target.dataset.del;
+      if(i !== undefined){ items[i].done = !items[i].done; save(); render(); }
+      if(d !== undefined){ items.splice(Number(d),1); save(); render(); }
+    });
+    addBtn.onclick = ()=> add(input.value);
+    input.onkeydown = (e)=> (e.key==="Enter") && add(input.value);
+
+    render(); // авто-відновлення при відкритті — C12 виконано
+</script>

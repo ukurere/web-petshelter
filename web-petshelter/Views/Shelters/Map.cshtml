@@ -1,21 +1,47 @@
 ﻿@{
-    ViewData["Title"] = "Shelters Map";
+    ViewData["Title"] = "Shelters map";
+    Layout = "_Layout";
 }
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<div id="map" style="height: 480px;" class="rounded-3 mb-3"></div>
+<div id="map" style="height: calc(100vh - 140px); width: 100%;"></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    (async () => {
-      const res = await fetch('/api/shelters');
-      const shelters = await res.json();
+    const uaCenter = [48.3794, 31.1656]; // центр України
+    const map = L.map('map').setView(uaCenter, 6);
 
-      const map = L.map('map').setView([50.45, 30.52], 6); // центр UA
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
 
-      shelters.filter(s => s.latitude && s.longitude).forEach(s => {
-        L.marker([s.latitude, s.longitude]).addTo(map).bindPopup(`<b>${s.name}</b><br/>${s.city ?? ''}`);
-      });
+    (async function load() {
+      try {
+        const url = '@Url.Action("MapData", "Shelters")';
+        const res = await fetch(url, { credentials: "same-origin" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+
+        const latlngs = [];
+
+        data.forEach(s => {
+          const lat = Number(s.lat), lng = Number(s.lng);
+          if (Number.isFinite(lat) && Number.isFinite(lng)) {
+            const m = L.marker([lat, lng])
+              .addTo(map)
+              .bindPopup(`<strong>${s.name}</strong><br>${s.address ?? ""}<br>
+                          <a href="/Shelters/Details/${s.id}">Open</a>`);
+            latlngs.push([lat, lng]);
+          }
+        });
+
+        if (latlngs.length) {
+          const bounds = L.latLngBounds(latlngs);
+          map.fitBounds(bounds.pad(0.2));
+        }
+      } catch (e) {
+        alert('Failed to load shelters.');
+        console.error('Map load error:', e);
+      }
     })();
 </script>

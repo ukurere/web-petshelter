@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,155 +7,119 @@ using web_petshelter.Models;
 
 namespace web_petshelter.Controllers
 {
+    [Authorize]
     public class AdoptionsController : Controller
     {
         private readonly AppDbContext _context;
-
-        public AdoptionsController(AppDbContext context)
-        {
-            _context = context;
-        }
+        public AdoptionsController(AppDbContext context) => _context = context;
 
         // GET: Adoptions
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Adoptions.Include(a => a.Animal);
-            return View(await appDbContext.ToListAsync());
+            var list = await _context.Adoptions
+                                     .Include(a => a.Animal)
+                                     .AsNoTracking()
+                                     .ToListAsync();
+            return View(list);
         }
 
         // GET: Adoptions/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id is null) return NotFound();
             var adoption = await _context.Adoptions
-                .Include(a => a.Animal)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (adoption == null)
-            {
-                return NotFound();
-            }
-
+                                         .Include(a => a.Animal)
+                                         .FirstOrDefaultAsync(m => m.Id == id);
+            if (adoption is null) return NotFound();
             return View(adoption);
         }
 
         // GET: Adoptions/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
-            ViewData["AnimalId"] = new SelectList(_context.Animals, "Id", "Name");
+            ViewData["AnimalId"] = new SelectList(_context.Animals.AsNoTracking(), "Id", "Name");
             return View();
         }
 
         // POST: Adoptions/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,AnimalId,AdopterName,AdopterEmail,AdoptedAt")] Adoption adoption)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(adoption);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ViewData["AnimalId"] = new SelectList(_context.Animals.AsNoTracking(), "Id", "Name", adoption.AnimalId);
+                return View(adoption);
             }
-            ViewData["AnimalId"] = new SelectList(_context.Animals, "Id", "Name", adoption.AnimalId);
-            return View(adoption);
+            _context.Adoptions.Add(adoption);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Adoptions/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id is null) return NotFound();
             var adoption = await _context.Adoptions.FindAsync(id);
-            if (adoption == null)
-            {
-                return NotFound();
-            }
-            ViewData["AnimalId"] = new SelectList(_context.Animals, "Id", "Name", adoption.AnimalId);
+            if (adoption is null) return NotFound();
+            ViewData["AnimalId"] = new SelectList(_context.Animals.AsNoTracking(), "Id", "Name", adoption.AnimalId);
             return View(adoption);
         }
 
         // POST: Adoptions/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,AnimalId,AdopterName,AdopterEmail,AdoptedAt")] Adoption adoption)
         {
-            if (id != adoption.Id)
+            if (id != adoption.Id) return NotFound();
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                ViewData["AnimalId"] = new SelectList(_context.Animals.AsNoTracking(), "Id", "Name", adoption.AnimalId);
+                return View(adoption);
             }
 
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    _context.Update(adoption);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!AdoptionExists(adoption.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                _context.Update(adoption);
+                await _context.SaveChangesAsync();
             }
-            ViewData["AnimalId"] = new SelectList(_context.Animals, "Id", "Name", adoption.AnimalId);
-            return View(adoption);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _context.Adoptions.AnyAsync(e => e.Id == id))
+                    return NotFound();
+                throw;
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Adoptions/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id is null) return NotFound();
             var adoption = await _context.Adoptions
-                .Include(a => a.Animal)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (adoption == null)
-            {
-                return NotFound();
-            }
-
+                                         .Include(a => a.Animal)
+                                         .FirstOrDefaultAsync(m => m.Id == id);
+            if (adoption is null) return NotFound();
             return View(adoption);
         }
 
         // POST: Adoptions/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var adoption = await _context.Adoptions.FindAsync(id);
             if (adoption != null)
             {
                 _context.Adoptions.Remove(adoption);
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool AdoptionExists(int id)
-        {
-            return _context.Adoptions.Any(e => e.Id == id);
         }
     }
 }

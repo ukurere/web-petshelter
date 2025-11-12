@@ -1,0 +1,30 @@
+﻿@model web_petshelter.Models.Animal
+
+<div class="col">
+    <div class="portfolio-content h-100 position-relative rounded-3 overflow-hidden">
+        <img class="img-fluid w-100 h-100 object-fit-cover"
+             src="@(string.IsNullOrWhiteSpace(Model.PhotoPath) ? Url.Content("~/assets/img/services.jpg") : Model.PhotoPath)"
+             alt="@Model.Name" />
+
+        <div class="portfolio-info d-flex flex-column justify-content-end">
+            <div>
+                <span class="badge bg-danger mb-2">@Model.Species</span>
+                <h4 class="m-0">@Model.Name</h4>
+                <p class="mb-0">@Model.Gender • @Model.AgeYears y.o.</p>
+            </div>
+
+            <div class="mt-3 d-flex gap-2">
+                <a href="javascript:void(0)"
+                   class="details-link btn btn-sm btn-light"
+                   data-animal-id="@Model.Id"
+                   title="More Details">
+                    <i class="bi bi-info-circle me-1"></i> Details
+                </a>
+                <a asp-action="Details" asp-route-id="@Model.Id"
+                   class="btn btn-sm btn-outline-light">
+                    Open page
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
