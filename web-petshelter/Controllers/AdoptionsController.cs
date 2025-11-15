@@ -13,7 +13,6 @@ namespace web_petshelter.Controllers
         private readonly AppDbContext _context;
         public AdoptionsController(AppDbContext context) => _context = context;
 
-        // GET: Adoptions
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
@@ -24,7 +23,6 @@ namespace web_petshelter.Controllers
             return View(list);
         }
 
-        // GET: Adoptions/Details/5
         [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
@@ -36,7 +34,6 @@ namespace web_petshelter.Controllers
             return View(adoption);
         }
 
-        // GET: Adoptions/Create
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
@@ -44,7 +41,6 @@ namespace web_petshelter.Controllers
             return View();
         }
 
-        // POST: Adoptions/Create
         [Authorize(Roles = "Admin")]
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,AnimalId,AdopterName,AdopterEmail,AdoptedAt")] Adoption adoption)
@@ -59,7 +55,6 @@ namespace web_petshelter.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Adoptions/Edit/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -70,7 +65,6 @@ namespace web_petshelter.Controllers
             return View(adoption);
         }
 
-        // POST: Adoptions/Edit/5
         [Authorize(Roles = "Admin")]
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,AnimalId,AdopterName,AdopterEmail,AdoptedAt")] Adoption adoption)
@@ -96,7 +90,6 @@ namespace web_petshelter.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Adoptions/Delete/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -108,7 +101,6 @@ namespace web_petshelter.Controllers
             return View(adoption);
         }
 
-        // POST: Adoptions/Delete/5
         [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

@@ -33,7 +33,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
         b.Entity<Adoption>()
             .HasOne(a => a.Animal)
-            .WithMany(an => an.Adoptions)   // <- прив’язуємо до колекції на Animal
+            .WithMany(an => an.Adoptions)  
             .HasForeignKey(a => a.AnimalId)
             .OnDelete(DeleteBehavior.Restrict);
 

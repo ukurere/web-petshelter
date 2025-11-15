@@ -11,8 +11,6 @@ namespace web_petshelter.Controllers
         private readonly AppDbContext _db;
         public SheltersController(AppDbContext db) => _db = db;
 
-        // --- READ ---
-
         [AllowAnonymous]
         public async Task<IActionResult> Index(string? q, string? city)
         {
@@ -42,18 +40,19 @@ namespace web_petshelter.Controllers
             return View(shelter);
         }
 
-        // Карта
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult Map() => View();
+        public IActionResult Map()
+        {
+            ViewData["BodyClass"] = "light-background";
+            return View();
+        }
 
-        // Дані для карти
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> MapData()
         {
             var items = await _db.Shelters
-                // ↓↓↓ якщо у вас Lat/Lng — змініть рядок нижче відповідно
                 .Where(s => s.Lat != null && s.Lng != null)
                 .Select(s => new ShelterMapDto(
                     s.Id,
@@ -63,17 +62,16 @@ namespace web_petshelter.Controllers
                     s.Lng!.Value))
                 .ToListAsync();
 
-            return Json(items); // ← цього бракувало
+            return Json(items);
         }
 
-        // --- CREATE ---
         [Authorize(Roles = "Admin")]
         public IActionResult Create() => View(new Shelter());
 
         [Authorize(Roles = "Admin")]
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("Name,Address,City,Lat,Lng,Phone,PhotoUrl")]
+            [Bind("Name,Address,City,Lat,Lng,Phone,PhotoUrl,WorkHours")]
             Shelter input)
         {
             if (!ModelState.IsValid) return View(input);
@@ -83,7 +81,7 @@ namespace web_petshelter.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // --- UPDATE ---
+
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
@@ -94,8 +92,9 @@ namespace web_petshelter.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id,
-            [Bind("Id,Name,Address,City,Lat,Lng,Phone,PhotoUrl")]
+        public async Task<IActionResult> Edit(
+            int id,
+            [Bind("Id,Name,Address,City,Lat,Lng,Phone,PhotoUrl,WorkHours")]
             Shelter input)
         {
             if (id != input.Id) return NotFound();
@@ -116,7 +115,7 @@ namespace web_petshelter.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // --- DELETE ---
+
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -141,7 +140,6 @@ namespace web_petshelter.Controllers
         }
     }
 
-    // DTO можна тимчасово покласти тут же або окремим файлом у Features/Shelters
     public sealed record ShelterMapDto(
         int Id,
         string Name,

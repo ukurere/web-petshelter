@@ -4,17 +4,15 @@ using Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore;
 using web_petshelter.Data;
 using web_petshelter.Models;
 using web_petshelter.Features.Statistics;
-using web_petshelter.Infrastructure; // для IdentitySeed
+using web_petshelter.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ---------------- Конфіг ----------------
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables();
 
-// ---------------- DbContext ----------------
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     var env = builder.Environment;
@@ -25,7 +23,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-// ---------------- Identity + ролі + Default UI ----------------
 builder.Services
     .AddIdentity<ApplicationUser, IdentityRole>(options =>
     {
@@ -45,7 +42,6 @@ builder.Services.ConfigureApplicationCookie(opt =>
     opt.AccessDeniedPath = "/Identity/Account/AccessDenied";
 });
 
-// ---------------- Сервіси застосунку ----------------
 builder.Services.AddScoped<StatisticsService>();
 
 builder.Services.AddControllersWithViews();
@@ -58,12 +54,10 @@ if (builder.Environment.IsDevelopment())
 
 builder.Services.AddSignalR();
 
-// ---------------- Build app ----------------
 var app = builder.Build();
 
 app.MapHub<web_petshelter.RealTime.TasksHub>("/hubs/tasks");
 
-// ---------------- Pipeline ----------------
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -88,25 +82,19 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
-// ---------------- Міграції + seed БД + seed адміна ----------------
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
 
-    // міграції
     var db = services.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
 
-    // тестові дані притулків у дев-оточенні
     if (app.Environment.IsDevelopment())
         await DbSeed.SeedSheltersAsync(db);
 
-    // створення ролі Admin і користувача yevgieniia.riabichenko@gmail.com з цією роллю
     await IdentitySeed.SeedAdminAsync(services);
 }
 
-// інший твій seed (якщо був)
 await DbInitializer.SeedAsync(app.Services, app.Environment);
 
-// ---------------- Run ----------------
 app.Run();

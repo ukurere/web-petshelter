@@ -1,7 +1,8 @@
-using System;
+ï»¿using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,7 @@ namespace web_petshelter.Controllers
             _logger = logger;
         }
 
-        // ??????? ? ??????? + ?????? ??????????
+        [AllowAnonymous]
         public async Task<IActionResult> Landing()
         {
             var vm = new StatsVm
@@ -41,47 +42,48 @@ namespace web_petshelter.Controllers
             return View(vm);
         }
 
+        [AllowAnonymous]
         public IActionResult Index() => View();
 
-        public IActionResult Privacy() => View();
+        [AllowAnonymous]
+        public IActionResult Privacy()
+        {
+            ViewData["BodyClass"] = "light-background";
+            return View();
+        }
 
-        // ???????? ?? ??????????? + ?????? ?? ????? ?? ??????
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Statistics(DateTime? from, DateTime? to)
         {
-            // ???? ?????????? ?????????? ??????? from/to – ??????? ??
+            ViewData["BodyClass"] = "light-background";
+
             if (from.HasValue && to.HasValue && from > to)
                 (from, to) = (to, from);
 
-            // ?????? ??????
             var sheltersQuery = _db.Shelters.AsNoTracking();
             var animalsQuery = _db.Animals.AsNoTracking();
             var adoptionsQuery = _db.Adoptions.AsNoTracking();
 
-            // !!! ????? !!!
-            // ??? ?????????? ???? ???? ? Adoption, ??? ? ? ????? ??????.
-            // ?????? AdoptionDate ?? ???? ??????????? (AdoptedAt, CreatedAt ????).
             if (from.HasValue)
             {
                 adoptionsQuery = adoptionsQuery
-                    .Where(a => a.AdoptedAt >= from.Value); // <-- ?????? AdoptionDate, ???? ?????
+                    .Where(a => a.AdoptedAt >= from.Value);
             }
 
             if (to.HasValue)
             {
-                var endExclusive = to.Value.Date.AddDays(1); // ??????? ?? ????? ??? "to"
+                var endExclusive = to.Value.Date.AddDays(1);
                 adoptionsQuery = adoptionsQuery
-                    .Where(a => a.AdoptedAt < endExclusive); // <-- ?????? AdoptionDate, ???? ?????
+                    .Where(a => a.AdoptedAt < endExclusive);
             }
 
-            // ????????
             var totalShelters = await sheltersQuery.CountAsync();
             var totalAnimals = await animalsQuery.CountAsync();
             var adoptionsInPeriod = await adoptionsQuery.CountAsync();
 
-            // ?????????? ??????? ?? ???????
             var grouped = await adoptionsQuery
-                .GroupBy(a => new { a.AdoptedAt.Year, a.AdoptedAt.Month }) // <-- ??? ??? ?????? ????
+                .GroupBy(a => new { a.AdoptedAt.Year, a.AdoptedAt.Month })
                 .Select(g => new
                 {
                     g.Key.Year,

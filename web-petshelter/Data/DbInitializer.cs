@@ -8,7 +8,7 @@ namespace web_petshelter.Data;
 public static class DbInitializer
 {
     private const string AdminEmail = "admin@example.com";
-    private const string AdminPassword = "Passw0rd!"; // відповідає дефолтним вимогам
+    private const string AdminPassword = "Passw0rd!";
 
     public static async Task SeedAsync(IServiceProvider services, IHostEnvironment env)
     {
@@ -17,28 +17,21 @@ public static class DbInitializer
         var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roles = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-        // 1) Міграції
-        // Якщо під час деву отримуєш помилку про зміну IDENTITY — це наслідок несумісних попередніх міграцій.
-        // У дев-оточенні дозволяємо «скидати» БД (опційно зніми, якщо не треба).
         try
         {
             await ctx.Database.MigrateAsync();
         }
         catch (Exception) when (env.IsDevelopment())
         {
-            // ⚠️ Лише локально: дроп і повна міграція з нуля, щоб уникнути
-            // "To change the IDENTITY property ..." на зламаних історіях.
             await ctx.Database.EnsureDeletedAsync();
             await ctx.Database.MigrateAsync();
         }
 
-        // 2) Ролі
         var requiredRoles = new[] { "Admin" };
         foreach (var r in requiredRoles)
             if (!await roles.RoleExistsAsync(r))
                 await roles.CreateAsync(new IdentityRole(r));
 
-        // 3) Адмін-користувач
         var admin = await users.FindByEmailAsync(AdminEmail);
         if (admin is null)
         {
@@ -57,9 +50,6 @@ public static class DbInitializer
             await users.AddToRoleAsync(admin, "Admin");
         }
 
-        // 4) Тут — інші сид-дані (Shelters, Breeds, Animals, ...)
-        // Додавай лише якщо їх немає, щоб сид був ідемпотентний.
-        // if (!await ctx.Shelters.AnyAsync()) { ... }
 
         await ctx.SaveChangesAsync();
     }

@@ -14,7 +14,6 @@
         <p class="text-muted mb-0">Browse animals and apply filters to find your future friend.</p>
     </div>
 
-    <!-- Filters -->
     <div class="card animals-filters-card mb-4 shadow-sm">
         <div class="card-body">
             <form method="get" class="row g-3 align-items-end">
@@ -102,7 +101,6 @@
         </span>
     </div>
 
-    <!-- Cards -->
     <div class="row g-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
         @foreach (var a in Model.Items)
         {
@@ -112,7 +110,6 @@
         }
     </div>
 
-    <!-- Pagination -->
     @{
         var pageSize = Math.Max(1, Model.PageSize);
         var totalPages = Math.Max(1, (int)Math.Ceiling(Model.Total / (double)pageSize));
@@ -164,7 +161,6 @@
     </nav>
 </section>
 
-<!-- Modal host -->
 <div class="modal fade" id="animalModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content"></div>

@@ -23,7 +23,6 @@ namespace web_petshelter.Controllers
                 await _signInManager.SignOutAsync();
             }
 
-            // головна сторінка — твоя Landing
             return RedirectToAction("Landing", "Home");
         }
     }

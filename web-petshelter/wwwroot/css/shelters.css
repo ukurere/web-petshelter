@@ -1,5 +1,4 @@
-﻿/* Card like “Team” with hover overlay */
-.shelter-card {
+﻿.shelter-card {
     position: relative;
     overflow: hidden;
     box-shadow: 0 2px 25px rgba(0,0,0,.08);
@@ -53,7 +52,6 @@
         flex-wrap: wrap;
     }
 
-/* Details: vertical gallery */
 .gallery-vertical {
     display: block;
 }
@@ -71,7 +69,6 @@
             display: block;
         }
 
-/* small tweak for sticky info card on large screens */
 @media (min-width: 992px) {
     .sticky-lg-top.top-3 {
         top: 1.5rem;

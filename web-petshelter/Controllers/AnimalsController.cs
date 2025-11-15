@@ -15,18 +15,15 @@ namespace web_petshelter.Controllers
 
         public AnimalsController(AppDbContext db) => _db = db;
 
-        // Список з фільтрами + пагінація (GET /Animals)
         [HttpGet]
         public async Task<IActionResult> Index([FromQuery] AnimalFilterVm f)
         {
-            // базовий запит
             var q = _db.Animals
                 .AsNoTracking()
                 .Include(a => a.Breed)
                 .Include(a => a.Shelter)
                 .AsQueryable();
 
-            // фільтри
             if (!string.IsNullOrWhiteSpace(f.Species)) q = q.Where(a => a.Species == f.Species);
             if (f.BreedId.HasValue) q = q.Where(a => a.BreedId == f.BreedId.Value);
             if (f.Gender.HasValue) q = q.Where(a => a.Gender == f.Gender.Value);
@@ -34,7 +31,6 @@ namespace web_petshelter.Controllers
             if (f.MaxAge.HasValue) q = q.Where(a => a.AgeYears <= f.MaxAge.Value);
             if (f.ShelterId.HasValue) q = q.Where(a => a.ShelterId == f.ShelterId.Value);
 
-            // !!! adopted -> derived по наявності записів в Adoptions
             if (f.Adopted.HasValue)
             {
                 q = f.Adopted.Value
@@ -44,7 +40,6 @@ namespace web_petshelter.Controllers
 
             if (!string.IsNullOrWhiteSpace(f.Search)) q = q.Where(a => a.Name.Contains(f.Search));
 
-            // пагінація
             var safePage = Math.Max(1, f.Page);
             var safePageSize = Math.Clamp(f.PageSize, 1, 100);
 
@@ -55,14 +50,12 @@ namespace web_petshelter.Controllers
                 .Take(safePageSize)
                 .ToListAsync();
 
-            // лукапи для селектів
             f.Breeds = await _db.Breeds.AsNoTracking().OrderBy(b => b.Name).ToListAsync();
             f.Shelters = await _db.Shelters.AsNoTracking().OrderBy(s => s.Name).ToListAsync();
 
             return View(f);
         }
 
-        // Деталі
         public async Task<IActionResult> Details(int id)
         {
             var animal = await _db.Animals
@@ -73,14 +66,12 @@ namespace web_petshelter.Controllers
             return animal is null ? NotFound() : View(animal);
         }
 
-        // Create (GET)
         public async Task<IActionResult> Create()
         {
             await LoadLookups();
             return View();
         }
 
-        // Create (POST)
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Animal animal)
         {
@@ -95,7 +86,6 @@ namespace web_petshelter.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Edit (GET)
         public async Task<IActionResult> Edit(int id)
         {
             var animal = await _db.Animals.FindAsync(id);
@@ -105,7 +95,6 @@ namespace web_petshelter.Controllers
             return View(animal);
         }
 
-        // Edit (POST)
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Animal animal)
         {
@@ -131,7 +120,6 @@ namespace web_petshelter.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Delete (GET)
         public async Task<IActionResult> Delete(int id)
         {
             var animal = await _db.Animals
@@ -142,7 +130,6 @@ namespace web_petshelter.Controllers
             return animal is null ? NotFound() : View(animal);
         }
 
-        // Delete (POST)
         [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
