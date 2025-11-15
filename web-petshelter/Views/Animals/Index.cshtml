@@ -1,143 +1,208 @@
 ﻿@model web_petshelter.Models.ViewModels.AnimalFilterVm
 @using Microsoft.AspNetCore.Mvc.Rendering
+@using web_petshelter.Models
+
+
 @{
     ViewData["Title"] = "Animals";
+    ViewData["BodyClass"] = "light-background";
 }
+<section class="section container animals-page">
 
-<section class="section container">
-  <h2 class="mb-4">Animals</h2>
-
-  <!-- Filters (kept compact) -->
-  <form method="get" class="row g-3 mb-4">
-    <div class="col-md-3">
-      <label class="form-label">Search by name</label>
-      <input asp-for="Search" class="form-control" />
-    </div>
-    <div class="col-md-2">
-      <label class="form-label">Species</label>
-      <input asp-for="Species" class="form-control" />
-    </div>
-    <div class="col-md-3">
-      <label class="form-label">Breed</label>
-      <select asp-for="BreedId" class="form-select"
-              asp-items="@(new SelectList(Model.Breeds, nameof(web_petshelter.Models.Breed.Id), nameof(web_petshelter.Models.Breed.Name)))">
-        <option value="">All breeds</option>
-      </select>
-    </div>
-    <div class="col-md-2">
-      <label class="form-label">Gender</label>
-      <select asp-for="Gender" class="form-select" asp-items="Html.GetEnumSelectList<web_petshelter.Models.Gender>()">
-        <option value="">Any</option>
-      </select>
-    </div>
-    <div class="col-md-2">
-      <label class="form-label">Shelter</label>
-      <select asp-for="ShelterId" class="form-select"
-              asp-items="@(new SelectList(Model.Shelters, nameof(web_petshelter.Models.Shelter.Id), nameof(web_petshelter.Models.Shelter.Name)))">
-        <option value="">Any</option>
-      </select>
+    <div class="section-title mb-3">
+        <h2 class="mb-1">Animals</h2>
+        <p class="text-muted mb-0">Browse animals and apply filters to find your future friend.</p>
     </div>
 
-    <div class="col-md-2">
-      <label class="form-label">Min age</label>
-      <input asp-for="MinAge" type="number" class="form-control" />
-    </div>
-    <div class="col-md-2">
-      <label class="form-label">Max age</label>
-      <input asp-for="MaxAge" type="number" class="form-control" />
-    </div>
-    <div class="col-md-2">
-      <label class="form-label">Adopted</label>
-      <select asp-for="Adopted" class="form-select">
-        <option value="">Any</option>
-        <option value="true">Only adopted</option>
-        <option value="false">Only available</option>
-      </select>
-    </div>
-    <div class="col-md-2">
-      <label class="form-label">Page</label>
-      <input asp-for="Page" type="number" min="1" class="form-control" />
-    </div>
-    <div class="col-md-2">
-      <label class="form-label">Page size</label>
-      <input asp-for="PageSize" type="number" min="1" max="100" class="form-control" />
+    <!-- Filters -->
+    <div class="card animals-filters-card mb-4 shadow-sm">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label" asp-for="Search">Search by name</label>
+                    <input asp-for="Search" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label" asp-for="Species">Species</label>
+                    <input asp-for="Species" class="form-control" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label" asp-for="BreedId">Breed</label>
+                    <select asp-for="BreedId"
+                            class="form-select"
+                            asp-items="@(new SelectList(Model.Breeds, nameof(web_petshelter.Models.Breed.Id), nameof(web_petshelter.Models.Breed.Name)))">
+                        <option value="">All breeds</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label" asp-for="Gender">Gender</label>
+                    <select asp-for="Gender"
+                            class="form-select"
+                            asp-items="Html.GetEnumSelectList<web_petshelter.Models.Gender>()">
+                        <option value="">Any</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label" asp-for="ShelterId">Shelter</label>
+                    <select asp-for="ShelterId"
+                            class="form-select"
+                            asp-items="@(new SelectList(Model.Shelters, nameof(web_petshelter.Models.Shelter.Id), nameof(web_petshelter.Models.Shelter.Name)))">
+                        <option value="">Any</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label" asp-for="MinAge">Min age</label>
+                    <input asp-for="MinAge" type="number" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label" asp-for="MaxAge">Max age</label>
+                    <input asp-for="MaxAge" type="number" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label" asp-for="Adopted">Adopted</label>
+                    <select asp-for="Adopted" class="form-select">
+                        <option value="">Any</option>
+                        <option value="true">Only adopted</option>
+                        <option value="false">Only available</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label" asp-for="Page">Page</label>
+                    <input asp-for="Page" type="number" min="1" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label" asp-for="PageSize">Page size</label>
+                    <input asp-for="PageSize" type="number" min="1" max="100" class="form-control" />
+                </div>
+
+                <div class="col-12 d-flex gap-2 mt-2">
+                    <button type="submit" class="btn btn-primary">Apply filters</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <div class="col-12">
-      <button class="btn btn-primary">Apply filters</button>
-      <a asp-action="Index" class="btn btn-outline-secondary ms-2">Reset</a>
+    <!-- Summary -->
+    <div class="d-flex justify-content-between align-items-center mb-3 animals-results-summary">
+        <p class="text-muted mb-0">
+            Found: <strong>@Model.Total</strong>
+        </p>
+        <span class="text-muted small">
+            Page @Model.Page, page size @Model.PageSize
+        </span>
     </div>
-  </form>
 
-  <p class="text-muted">Found: <strong>@Model.Total</strong></p>
+    <!-- Cards -->
+    <div class="row g-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
+        @foreach (var a in Model.Items)
+        {
+            <div class="col">
+                @await Html.PartialAsync("_Card", a)
+            </div>
+        }
+    </div>
 
-  <div class="row row-cols-1 row-cols-md-3 g-4">
-    @foreach (var a in Model.Items)
-    {
-      @await Html.PartialAsync("_Card", a)
+    <!-- Pagination -->
+    @{
+        var pageSize = Math.Max(1, Model.PageSize);
+        var totalPages = Math.Max(1, (int)Math.Ceiling(Model.Total / (double)pageSize));
+        var currentPage = Math.Clamp(Model.Page, 1, totalPages);
     }
-  </div>
 
-  @{
-    var totalPages = (int)Math.Ceiling((double)Math.Max(1, Model.Total) / Math.Max(1, Model.PageSize));
-    var page = Math.Clamp(Model.Page, 1, Math.Max(1, totalPages));
-  }
-  <nav class="mt-4">
-    <ul class="pagination">
-      <li class="page-item @(page == 1 ? "disabled" : "")">
-        <a class="page-link" asp-action="Index"
-           asp-route-Page="@(page-1)"
-           asp-route-PageSize="@Model.PageSize"
-           asp-route-Species="@Model.Species"
-           asp-route-BreedId="@Model.BreedId"
-           asp-route-Gender="@Model.Gender"
-           asp-route-MinAge="@Model.MinAge"
-           asp-route-MaxAge="@Model.MaxAge"
-           asp-route-ShelterId="@Model.ShelterId"
-           asp-route-Adopted="@Model.Adopted"
-           asp-route-Search="@Model.Search">Prev</a>
-      </li>
-      <li class="page-item disabled"><span class="page-link">Page @@page / @totalPages</span></li>
-      <li class="page-item @(page >= totalPages ? "disabled" : "")">
-        <a class="page-link" asp-action="Index"
-           asp-route-Page="@(page+1)"
-           asp-route-PageSize="@Model.PageSize"
-           asp-route-Species="@Model.Species"
-           asp-route-BreedId="@Model.BreedId"
-           asp-route-Gender="@Model.Gender"
-           asp-route-MinAge="@Model.MinAge"
-           asp-route-MaxAge="@Model.MaxAge"
-           asp-route-ShelterId="@Model.ShelterId"
-           asp-route-Adopted="@Model.Adopted"
-           asp-route-Search="@Model.Search">Next</a>
-      </li>
-    </ul>
-  </nav>
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-Page="@(currentPage - 1)"
+                   asp-route-PageSize="@Model.PageSize"
+                   asp-route-Species="@Model.Species"
+                   asp-route-BreedId="@Model.BreedId"
+                   asp-route-Gender="@Model.Gender"
+                   asp-route-MinAge="@Model.MinAge"
+                   asp-route-MaxAge="@Model.MaxAge"
+                   asp-route-ShelterId="@Model.ShelterId"
+                   asp-route-Adopted="@Model.Adopted"
+                   asp-route-Search="@Model.Search">
+                    Prev
+                </a>
+            </li>
+
+            <li class="page-item disabled">
+                <span class="page-link">
+                    Page @currentPage / @totalPages
+                </span>
+            </li>
+
+            <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-Page="@(currentPage + 1)"
+                   asp-route-PageSize="@Model.PageSize"
+                   asp-route-Species="@Model.Species"
+                   asp-route-BreedId="@Model.BreedId"
+                   asp-route-Gender="@Model.Gender"
+                   asp-route-MinAge="@Model.MinAge"
+                   asp-route-MaxAge="@Model.MaxAge"
+                   asp-route-ShelterId="@Model.ShelterId"
+                   asp-route-Adopted="@Model.Adopted"
+                   asp-route-Search="@Model.Search">
+                    Next
+                </a>
+            </li>
+        </ul>
+    </nav>
 </section>
 
 <!-- Modal host -->
 <div class="modal fade" id="animalModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content"></div>
-  </div>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content"></div>
+    </div>
 </div>
 
 @section Scripts {
-<script>
-  (function () {
-    const modalEl = document.getElementById('animalModal');
-    const modal = new bootstrap.Modal(modalEl);
+    <script>
+        (function () {
+            const modalEl = document.getElementById('animalModal');
+            if (!modalEl || !window.bootstrap) return;
 
-    document.addEventListener('click', async (e) => {
-      const btn = e.target.closest('.details-link[data-animal-id]');
-      if (!btn) return;
-      const id = btn.getAttribute('data-animal-id');
+            const modal = new bootstrap.Modal(modalEl);
 
-      const res = await fetch(`@Url.Action("DetailsPartial","Animals")?id=${id}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
-      if (!res.ok) { alert('Failed to load details'); return; }
-      modalEl.querySelector('.modal-content').innerHTML = await res.text();
-      modal.show();
-    });
-  })();
-</script>
+            document.addEventListener('click', async (e) => {
+                const btn = e.target.closest('.details-link[data-animal-id]');
+                if (!btn) return;
+
+                const id = btn.getAttribute('data-animal-id');
+                if (!id) return;
+
+                try {
+                    const url = '@Url.Action("DetailsPartial", "Animals")' + '?id=' + encodeURIComponent(id);
+                    const res = await fetch(url, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+
+                    if (!res.ok) {
+                        alert('Failed to load details');
+                        return;
+                    }
+
+                    modalEl.querySelector('.modal-content').innerHTML = await res.text();
+                    modal.show();
+                } catch {
+                    alert('Failed to load details');
+                }
+            });
+        })();
+    </script>
 }

@@ -1,7 +1,12 @@
-﻿@{
+﻿@model IEnumerable<web_petshelter.Models.Shelter>
+
+@{
     ViewData["Title"] = "Shelters map";
     Layout = "_Layout";
+    ViewData["BodyClass"] = "light-background";
 }
+
+
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <div id="map" style="height: calc(100vh - 140px); width: 100%;"></div>

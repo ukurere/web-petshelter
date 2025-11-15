@@ -196,6 +196,9 @@ namespace web_petshelter.Migrations
                     b.Property<int>("AgeYears")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("ArrivedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int?>("BreedId")
                         .HasColumnType("int");
 
@@ -204,6 +207,9 @@ namespace web_petshelter.Migrations
 
                     b.Property<int>("Gender")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("LeftAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -427,6 +433,38 @@ namespace web_petshelter.Migrations
                     b.HasIndex("Status", "DueAt");
 
                     b.ToTable("TaskItems");
+                });
+
+            modelBuilder.Entity("web_petshelter.Models.VolunteerTask", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Assignee")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDone")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ShelterId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VolunteerTasks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

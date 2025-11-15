@@ -1,0 +1,125 @@
+﻿/* Контент нижче фіксованого хедера */
+.main {
+    padding-top: 84px;
+}
+/* піджени значення, якщо треба */
+@media (max-width: 1200px) {
+    .main {
+        padding-top: 76px;
+    }
+}
+
+/* ===== Header: чорний фон + білі написи */
+:root {
+    --header-h: 72px;
+}
+/* під свою висоту */
+
+header.header,
+.navbar,
+.header.fixed-top {
+    background: #000 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+
+    .navbar-brand,
+    .navbar .nav-link,
+    .header a,
+    .header .btn-link,
+    .header .navbar-toggler,
+    .header .dropdown-toggle {
+        color: #fff !important;
+    }
+
+        .navbar .nav-link:hover,
+        .header a:hover,
+        .header .dropdown-item:hover {
+            color: #e6e6e6 !important;
+        }
+
+/* dropdowns всередині чорної шапки */
+.header .dropdown-menu {
+    background: #111;
+    border-color: #222;
+}
+
+.header .dropdown-item {
+    color: #fff;
+}
+
+    .header .dropdown-item:hover {
+        background: #1b1b1b;
+    }
+
+/* Кнопки у шапці (якщо є outline/light) */
+.header .btn.btn-outline-light {
+    border-color: #fff;
+    color: #fff;
+}
+
+    .header .btn.btn-outline-light:hover {
+        background: #fff;
+        color: #000;
+    }
+
+/* ===== Фіксованій шапці – відступ контенту зверху */
+header.header.fixed-top + main,
+.fixed-top + main {
+    padding-top: calc(var(--header-h) + 16px);
+}
+
+/* Якщо сторінка без <main>, підсунемо першу секцію */
+header.header.fixed-top + .section,
+header.header.fixed-top + .container {
+    margin-top: calc(var(--header-h) + 16px);
+}
+
+/* Щоб заголовок не “рубався”, коли скролимо по якорях */
+.section-title h2,
+h1, h2, h3 {
+    scroll-margin-top: calc(var(--header-h) + 12px);
+}
+
+/* піджени під свою висоту */
+
+.header.fixed-top + main {
+    padding-top: calc(var(--header-h) + 16px);
+}
+
+/* Якщо хочеш — лише для світлих сторінок */
+body.light-background .header.fixed-top + main {
+    padding-top: calc(var(--header-h) + 16px);
+}
+
+
+/* Для сторінок логіну/реєстрації */
+.page-auth #hero.auth-hero {
+    min-height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+    .page-auth #hero.auth-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45); /* затемнення, як на головній */
+    }
+
+    .page-auth #hero.auth-hero .container {
+        position: relative;
+        z-index: 1;
+    }
+
+.auth-card {
+    border-radius: 1rem;
+    background: #ffffff;
+}
+
+/* щоб контент був трохи нижче шапки */
+.page-auth .hero {
+    padding-top: 100px;
+    padding-bottom: 80px;
+}

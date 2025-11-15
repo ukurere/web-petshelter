@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using web_petshelter.Data;
 using web_petshelter.Models;
+using web_petshelter.RealTime;
 
 [Route("api/volunteer-tasks")]
 [ApiController]

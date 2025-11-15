@@ -1,7 +1,9 @@
 ﻿@* Layout, що підключає Dewi тему *@
 @using Microsoft.AspNetCore.Identity
+@using web_petshelter.Models
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,18 +37,14 @@
     @{
         var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
         var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
-
-        string Active(string controller, string? action = null)
-        => (string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
-        && (action is null || string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)))
-        ? "active" : "";
     }
 
-    <!-- HEADER -->
+    <!-- HEADER, як у Dewi -->
     <header id="header" class="header d-flex align-items-center fixed-top">
-        <div class="container-fluid container-xl position-relative d-flex align-items-center">
+        <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
 
-            <a asp-controller="Home" asp-action="Landing" class="logo d-flex align-items-center me-auto">
+            <a asp-controller="Home" asp-action="Landing"
+               class="logo d-flex align-items-center me-auto me-lg-0">
                 <h1 class="sitename">PetShelter</h1>
             </a>
 
@@ -54,45 +52,37 @@
                 <ul>
                     <li>
                         <a asp-controller="Home" asp-action="Landing"
-                           class="@(ViewContext.RouteData.Values["controller"]?.ToString()=="Home"
-                        && ViewContext.RouteData.Values["action"]?.ToString()=="Landing" ? "active" : "")">
+                           class="@(currentController=="Home" && currentAction=="Landing" ? "active" : "")">
                             Home
                         </a>
                     </li>
                     <li>
                         <a asp-controller="Animals" asp-action="Index"
-                           class="@(ViewContext.RouteData.Values["controller"]?.ToString()=="Animals" ? "active" : "")">
+                           class="@(currentController=="Animals" ? "active" : "")">
                             Animals
                         </a>
                     </li>
                     <li>
                         <a asp-controller="Shelters" asp-action="Index"
-                           class="@(ViewContext.RouteData.Values["controller"]?.ToString()=="Shelters"
-                        && ViewContext.RouteData.Values["action"]?.ToString()=="Index" ? "active" : "")">
+                           class="@(currentController=="Shelters" && currentAction=="Index" ? "active" : "")">
                             Shelters
                         </a>
                     </li>
-
-                    <!-- НОВЕ: Statistics -->
                     <li>
                         <a asp-controller="Home" asp-action="Statistics"
-                           class="@(ViewContext.RouteData.Values["controller"]?.ToString()=="Home"
-                        && ViewContext.RouteData.Values["action"]?.ToString()=="Statistics" ? "active" : "")">
+                           class="@(currentController=="Home" && currentAction=="Statistics" ? "active" : "")">
                             Statistics
                         </a>
                     </li>
-
                     <li>
                         <a asp-controller="Shelters" asp-action="Map"
-                           class="@(ViewContext.RouteData.Values["controller"]?.ToString()=="Shelters"
-                        && ViewContext.RouteData.Values["action"]?.ToString()=="Map" ? "active" : "")">
+                           class="@(currentController=="Shelters" && currentAction=="Map" ? "active" : "")">
                             Map
                         </a>
                     </li>
-
                     <li>
                         <a asp-controller="Adoptions" asp-action="Index"
-                           class="@(ViewContext.RouteData.Values["controller"]?.ToString()=="Adoptions" ? "active" : "")">
+                           class="@(currentController=="Adoptions" ? "active" : "")">
                             Adoptions
                         </a>
                     </li>
@@ -100,35 +90,45 @@
                 <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
             </nav>
 
-
-            <div class="d-flex align-items-center gap-2 ms-3">
+            <!-- Блок авторизації / користувача -->
+            <div class="auth-links d-flex align-items-center gap-2 ms-3">
                 @if (SignInManager?.IsSignedIn(User) == true)
                 {
-                    <span class="text-white-50 d-none d-md-inline">Hello, @User.Identity?.Name</span>
-                    <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="m-0">
-                        <button class="btn btn-outline-light btn-sm" type="submit">Logout</button>
+                    <span class="auth-user d-none d-md-inline">
+                        @UserManager?.GetUserName(User)
+                    </span>
+
+                    <form asp-controller="Auth"
+                          asp-action="Logout"
+                          method="post"
+                          class="m-0">
+                        <button type="submit"
+                                class="btn btn-sm btn-outline-primary btn-auth-outline">
+                            Logout
+                        </button>
                     </form>
                 }
                 else
                 {
-                    <a class="btn btn-sm btn-outline-light"
-                       asp-area="Identity"
-                       asp-page="/Account/Login">Sign in</a>
+                    <a asp-area="Identity"
+                       asp-page="/Account/Login"
+                       class="btn btn-sm btn-outline-primary btn-auth-outline">
+                        Sign in
+                    </a>
 
-                    <a class="btn btn-sm btn-primary ms-2"
-                       asp-area="Identity"
-                       asp-page="/Account/Register">Register</a>
+                    <a asp-area="Identity"
+                       asp-page="/Account/Register"
+                       class="btn btn-sm btn-primary btn-auth-primary">
+                        Register
+                    </a>
                 }
             </div>
-
 
         </div>
     </header>
 
-    <main class="main">
-        <div class="container-fluid px-0">
-            @RenderBody()
-        </div>
+    <main class="page-content">
+        @RenderBody()
     </main>
 
     <!-- FOOTER -->

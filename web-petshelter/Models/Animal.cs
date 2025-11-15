@@ -10,10 +10,19 @@
         public int AgeYears { get; set; }
         public string? PhotoPath { get; set; }
         public Gender Gender { get; set; } = Gender.Unknown;
+
         public int ShelterId { get; set; }
         public Shelter Shelter { get; set; } = null!;
+
         public int? BreedId { get; set; }
         public Breed? Breed { get; set; }
+
         public ICollection<Adoption> Adoptions { get; set; } = new List<Adoption>();
+
+        // NEW: час надходження в притулок (для графіка тваринок)
+        public DateTime ArrivedAt { get; set; } = DateTime.UtcNow;
+
+        // (не обов’язково, але корисно) якщо тварина вибула не через адопцію
+        public DateTime? LeftAt { get; set; }
     }
 }

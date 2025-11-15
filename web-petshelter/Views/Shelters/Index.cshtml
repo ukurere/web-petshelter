@@ -43,15 +43,25 @@
                 <div class="col-lg-6">
                     <div class="card border-0 shadow-sm">
                         <div class="ratio ratio-16x9">
-                            <img src="@(string.IsNullOrWhiteSpace(s.PhotoUrl) ? Url.Content("~/assets/img/portfolio/product-1.jpg") : s.PhotoUrl)"
-                                 class="card-img-top object-fit-cover" alt="@s.Name" />
+                            @{
+                                // if null/empty -> placeholder
+                                string photo = string.IsNullOrWhiteSpace(s.PhotoUrl)
+                                ? Url.Content("~/assets/img/shelters/placeholder.jpg")
+                                : (s.PhotoUrl.StartsWith("~")
+                                ? Url.Content(s.PhotoUrl)
+                                : Url.Content("~" + (s.PhotoUrl.StartsWith("/") ? s.PhotoUrl : "/" + s.PhotoUrl)));
+                            }
+                            <img class="card-img-top" src="@photo" alt="@s.Name" />
                         </div>
+
                         <div class="card-body">
                             <h4 class="card-title mb-1">@s.Name</h4>
+
                             @if (!string.IsNullOrWhiteSpace(s.Address))
                             {
                                 <div class="text-muted">@s.Address</div>
                             }
+
                             <div class="d-flex align-items-center gap-2 mt-1 text-secondary">
                                 <i class="bi bi-geo-alt"></i>
                                 <span>@(string.IsNullOrWhiteSpace(s.City) ? "—" : s.City)</span>
@@ -69,6 +79,7 @@
                     </div>
                 </div>
             }
+
         </div>
     }
 </section>
